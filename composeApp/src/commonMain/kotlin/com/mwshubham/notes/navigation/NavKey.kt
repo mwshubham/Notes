@@ -23,3 +23,6 @@ data class NoteDetail(
     /** Null means "add new note"; non-null means "edit existing note". */
     val id: Long? = null
 ) : NavKey
+
+@Serializable
+data object Settings : NavKey

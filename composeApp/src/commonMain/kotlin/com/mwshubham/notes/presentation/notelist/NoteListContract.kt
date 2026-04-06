@@ -10,9 +10,11 @@ data class NoteListState(
 sealed interface NoteListIntent {
     data object AddNoteClicked : NoteListIntent
     data class NoteClicked(val id: Long) : NoteListIntent
+    data object SettingsClicked : NoteListIntent
 }
 
 sealed interface NoteListEffect {
     data object NavigateToAddNote : NoteListEffect
     data class NavigateToEditNote(val id: Long) : NoteListEffect
+    data object NavigateToSettings : NoteListEffect
 }

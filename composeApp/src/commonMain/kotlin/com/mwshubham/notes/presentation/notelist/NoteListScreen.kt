@@ -21,12 +21,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -47,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import com.mwshubham.notes.domain.model.Note
 import com.mwshubham.notes.navigation.NavKey
 import com.mwshubham.notes.navigation.NoteDetail
+import com.mwshubham.notes.navigation.Settings
 import com.mwshubham.notes.ui.theme.VaultTheme
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.datetime.Instant
@@ -68,6 +71,8 @@ fun NoteListScreen(
                     onNavigate(NoteDetail(id = null))
                 is NoteListEffect.NavigateToEditNote ->
                     onNavigate(NoteDetail(id = effect.id))
+                is NoteListEffect.NavigateToSettings ->
+                    onNavigate(Settings)
             }
         }
     }
@@ -83,6 +88,15 @@ fun NoteListScreen(
                             style = MaterialTheme.typography.headlineMedium,
                             color = MaterialTheme.colorScheme.onBackground
                         )
+                    },
+                    actions = {
+                        IconButton(onClick = { viewModel.onIntent(NoteListIntent.SettingsClicked) }) {
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = "Settings",
+                                tint = MaterialTheme.colorScheme.onBackground
+                            )
+                        }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = Color.Transparent

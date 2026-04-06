@@ -3,6 +3,8 @@ package com.mwshubham.notes.presentation.splash
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mwshubham.notes.core.logger.AppLogger
+import com.mwshubham.notes.data.preferences.DEFAULT_TAP_THRESHOLD
+import com.mwshubham.notes.data.preferences.SettingsRepository
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,10 +15,11 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 private const val TAG = "SplashViewModel"
-private const val SECRET_TAP_THRESHOLD = 5
 private const val AUTO_NAVIGATE_DELAY_MS = 5_000L
 
-class SplashViewModel : ViewModel() {
+class SplashViewModel(
+    private val settingsRepository: SettingsRepository
+) : ViewModel() {
 
     private val _state = MutableStateFlow(SplashState())
     val state: StateFlow<SplashState> = _state.asStateFlow()
@@ -25,8 +28,21 @@ class SplashViewModel : ViewModel() {
     private val _effect = Channel<SplashEffect>(Channel.BUFFERED)
     val effect = _effect.receiveAsFlow()
 
+    // Live tap threshold backed by DataStore; starts at the compile-time default
+    private val _tapThreshold = MutableStateFlow(DEFAULT_TAP_THRESHOLD)
+
     init {
+        observeTapThreshold()
         startAutoNavigateTimer()
+    }
+
+    private fun observeTapThreshold() {
+        viewModelScope.launch {
+            settingsRepository.tapThreshold.collect { threshold ->
+                _tapThreshold.value = threshold
+                AppLogger.d(TAG, "Tap threshold updated — $threshold")
+            }
+        }
     }
 
     fun onIntent(intent: SplashIntent) {
@@ -50,10 +66,11 @@ class SplashViewModel : ViewModel() {
             return
         }
 
+        val threshold = _tapThreshold.value
         val current = _state.value.tapCount + 1
-        AppLogger.d(TAG, "Tap detected — count=$current / $SECRET_TAP_THRESHOLD")
+        AppLogger.d(TAG, "Tap detected — count=$current / $threshold")
         _state.update { it.copy(tapCount = current) }
-        if (current >= SECRET_TAP_THRESHOLD) {
+        if (current >= threshold) {
             AppLogger.i(TAG, "Secret threshold reached — unlocking vault")
             navigateToNoteList()
         }

@@ -36,6 +36,8 @@ kotlin {
             // Navigation 3 UI components (Android-only — NavDisplay etc.)
             implementation(libs.navigation3.ui)
             implementation(libs.lifecycle.viewmodel.navigation3)
+            // ProcessLifecycleOwner for whole-process background detection
+            implementation(libs.androidx.lifecycle.process)
         }
 
         commonMain.dependencies {
@@ -78,6 +80,9 @@ kotlin {
 
             // Kermit logging
             implementation(libs.kermit)
+
+            // DataStore Preferences (KMP)
+            implementation(libs.aandroidx.datastore.preferences)
         }
 
         commonTest.dependencies {

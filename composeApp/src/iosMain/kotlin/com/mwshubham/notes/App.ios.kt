@@ -7,12 +7,15 @@ import com.mwshubham.notes.navigation.HelloWorld
 import com.mwshubham.notes.navigation.NavKey
 import com.mwshubham.notes.navigation.NoteDetail
 import com.mwshubham.notes.navigation.NoteList
+import com.mwshubham.notes.navigation.Settings
 import com.mwshubham.notes.navigation.Splash
 import com.mwshubham.notes.presentation.helloworld.HelloWorldScreen
 import com.mwshubham.notes.presentation.notedetail.NoteDetailScreen
 import com.mwshubham.notes.presentation.notedetail.NoteDetailViewModel
 import com.mwshubham.notes.presentation.notelist.NoteListScreen
 import com.mwshubham.notes.presentation.notelist.NoteListViewModel
+import com.mwshubham.notes.presentation.settings.SettingsScreen
+import com.mwshubham.notes.presentation.settings.SettingsViewModel
 import com.mwshubham.notes.presentation.splash.SplashScreen
 import com.mwshubham.notes.presentation.splash.SplashViewModel
 import org.koin.compose.viewmodel.koinViewModel
@@ -59,6 +62,14 @@ actual fun App() {
                 parameters = { parametersOf(key.id) }
             )
             NoteDetailScreen(
+                viewModel = vm,
+                onNavigateBack = { if (backStack.size > 1) backStack.removeLast() }
+            )
+        }
+
+        is Settings -> {
+            val vm: SettingsViewModel = koinViewModel()
+            SettingsScreen(
                 viewModel = vm,
                 onNavigateBack = { if (backStack.size > 1) backStack.removeLast() }
             )

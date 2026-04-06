@@ -40,6 +40,10 @@ class NoteListViewModel(
                 AppLogger.i(TAG, "Note clicked id=${intent.id}")
                 viewModelScope.launch { _effect.send(NoteListEffect.NavigateToEditNote(intent.id)) }
             }
+            is NoteListIntent.SettingsClicked -> {
+                AppLogger.i(TAG, "Settings clicked")
+                viewModelScope.launch { _effect.send(NoteListEffect.NavigateToSettings) }
+            }
         }
     }
 
