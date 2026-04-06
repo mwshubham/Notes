@@ -17,6 +17,7 @@ import com.mwshubham.notes.presentation.notelist.NoteListScreen
 import com.mwshubham.notes.presentation.notelist.NoteListViewModel
 import com.mwshubham.notes.presentation.splash.SplashScreen
 import com.mwshubham.notes.presentation.splash.SplashViewModel
+<<<<<<< HEAD
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
