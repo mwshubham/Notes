@@ -73,7 +73,7 @@ fun SplashScreen(
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = "Hello World",
+            text = if (state.canNavigateToVault) ":)" else "Hello World!",
             modifier = Modifier.alpha(alpha),
             fontSize = 24.sp,
             fontWeight = FontWeight.Normal,

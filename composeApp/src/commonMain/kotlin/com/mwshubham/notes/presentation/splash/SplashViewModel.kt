@@ -45,6 +45,11 @@ class SplashViewModel : ViewModel() {
     }
 
     private fun handleTap() {
+        if (!_state.value.canNavigateToVault) {
+            AppLogger.d(TAG, "Tap ignored - vault navigation disabled")
+            return
+        }
+
         val current = _state.value.tapCount + 1
         AppLogger.d(TAG, "Tap detected — count=$current / $SECRET_TAP_THRESHOLD")
         _state.update { it.copy(tapCount = current) }
@@ -55,6 +60,7 @@ class SplashViewModel : ViewModel() {
     }
 
     private fun navigateToHelloWorld() {
+        _state.update { it.copy(canNavigateToVault = false) }
         viewModelScope.launch {
             AppLogger.i(TAG, "Navigating to HelloWorld (time-out)")
             _effect.send(SplashEffect.NavigateToHelloWorld)

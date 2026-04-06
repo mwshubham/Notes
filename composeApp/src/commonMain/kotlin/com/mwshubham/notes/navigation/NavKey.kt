@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
  * The backstack is a [SnapshotStateList<NavKey>], which Nav3 observes directly.
  */
 @Serializable
-sealed interface NavKey
+sealed interface NavKey : androidx.navigation3.runtime.NavKey
 
 @Serializable
 data object Splash : NavKey

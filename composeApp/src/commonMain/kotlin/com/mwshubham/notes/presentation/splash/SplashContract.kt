@@ -2,7 +2,8 @@ package com.mwshubham.notes.presentation.splash
 
 /** The single source-of-truth state rendered by SplashScreen. */
 data class SplashState(
-    val tapCount: Int = 0
+    val tapCount: Int = 0,
+    val canNavigateToVault: Boolean = true
 )
 
 /** All user actions the splash screen can raise. */

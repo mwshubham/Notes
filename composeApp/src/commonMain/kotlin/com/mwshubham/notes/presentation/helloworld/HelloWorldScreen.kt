@@ -25,7 +25,7 @@ fun HelloWorldScreen() {
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = "Hello World",
+            text = "Hello World !",
             fontSize = 28.sp,
             fontFamily = FontFamily.Default,
             color = Color.Black

@@ -1,12 +1,11 @@
 package com.mwshubham.notes
 
 import androidx.compose.runtime.Composable
-import androidx.navigation3.SavedStateConfiguration
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import androidx.savedstate.serialization.SavedStateConfiguration
 import com.mwshubham.notes.navigation.HelloWorld
-import com.mwshubham.notes.navigation.NavKey
 import com.mwshubham.notes.navigation.NoteDetail
 import com.mwshubham.notes.navigation.NoteList
 import com.mwshubham.notes.navigation.Splash
@@ -17,12 +16,12 @@ import com.mwshubham.notes.presentation.notelist.NoteListScreen
 import com.mwshubham.notes.presentation.notelist.NoteListViewModel
 import com.mwshubham.notes.presentation.splash.SplashScreen
 import com.mwshubham.notes.presentation.splash.SplashViewModel
-<<<<<<< HEAD
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.subclass
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import androidx.navigation3.runtime.NavKey as RuntimeNavKey
 
 /**
  * Android actual — Nav3 [NavDisplay] with a state-driven [rememberNavBackStack].
@@ -34,7 +33,8 @@ import org.koin.core.parameter.parametersOf
 @Composable
 actual fun App() {
     val serializersModule = SerializersModule {
-        polymorphic(NavKey::class) {
+        // rememberNavBackStack serializes keys via the runtime NavKey base type.
+        polymorphic(RuntimeNavKey::class) {
             subclass(Splash::class)
             subclass(HelloWorld::class)
             subclass(NoteList::class)
@@ -42,9 +42,9 @@ actual fun App() {
         }
     }
 
-    val configuration = SavedStateConfiguration(
-        serializersModule = serializersModule
-    )
+    val configuration = SavedStateConfiguration {
+        this.serializersModule = serializersModule
+    }
 
     val backStack = rememberNavBackStack(
         configuration,
