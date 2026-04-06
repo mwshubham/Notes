@@ -19,4 +19,14 @@ class SettingsRepositoryImpl(
             prefs[KEY_TAP_THRESHOLD] = value.coerceIn(2, 8)
         }
     }
+
+    override val lastBackupTimestamp: Flow<Long?> = dataStore.data.map { prefs ->
+        prefs[KEY_LAST_BACKUP_TIMESTAMP]
+    }
+
+    override suspend fun setLastBackupTimestamp(ts: Long) {
+        dataStore.edit { prefs ->
+            prefs[KEY_LAST_BACKUP_TIMESTAMP] = ts
+        }
+    }
 }

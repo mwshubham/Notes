@@ -9,14 +9,17 @@ import com.mwshubham.notes.data.preferences.createDataStore
 import com.mwshubham.notes.data.repository.NoteRepositoryImpl
 import com.mwshubham.notes.domain.repository.NoteRepository
 import com.mwshubham.notes.domain.usecase.DeleteNoteUseCase
+import com.mwshubham.notes.domain.usecase.ExportNotesUseCase
 import com.mwshubham.notes.domain.usecase.GetAllNotesUseCase
 import com.mwshubham.notes.domain.usecase.GetNoteByIdUseCase
+import com.mwshubham.notes.domain.usecase.ImportNotesUseCase
 import com.mwshubham.notes.domain.usecase.UpsertNoteUseCase
 import com.mwshubham.notes.presentation.notedetail.NoteDetailViewModel
 import com.mwshubham.notes.presentation.notelist.NoteListViewModel
 import com.mwshubham.notes.presentation.settings.SettingsViewModel
 import com.mwshubham.notes.presentation.splash.SplashViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -45,6 +48,8 @@ val useCaseModule = module {
     factory { GetNoteByIdUseCase(get()) }
     factory { UpsertNoteUseCase(get()) }
     factory { DeleteNoteUseCase(get()) }
+    factory { ExportNotesUseCase(get()) }
+    factory { ImportNotesUseCase(get()) }
 }
 
 val viewModelModule = module {

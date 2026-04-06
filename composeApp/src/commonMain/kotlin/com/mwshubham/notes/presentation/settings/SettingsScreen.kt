@@ -12,28 +12,37 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.mwshubham.notes.presentation.backup.rememberFileOpenLauncher
+import com.mwshubham.notes.presentation.backup.rememberFileSaveLauncher
 import com.mwshubham.notes.ui.theme.VaultTheme
 import kotlin.math.roundToInt
+import kotlinx.coroutines.flow.collectLatest
 
 private const val TAP_MIN = 2
 private const val TAP_MAX = 8
@@ -45,10 +54,33 @@ fun SettingsScreen(
     onNavigateBack: () -> Unit
 ) {
     val state by viewModel.state.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    val exportLauncher = rememberFileSaveLauncher(
+        onSuccess = { viewModel.onIntent(SettingsIntent.ExportSaved) }
+    )
+    val importLauncher = rememberFileOpenLauncher(
+        onFileOpened = { content ->
+            if (content != null) viewModel.onIntent(SettingsIntent.ImportData(content))
+        }
+    )
+
+    LaunchedEffect(Unit) {
+        viewModel.effect.collectLatest { effect ->
+            when (effect) {
+                is SettingsEffect.LaunchExport ->
+                    exportLauncher(effect.suggestedFileName, effect.content)
+                is SettingsEffect.ShowMessage ->
+                    snackbarHostState.showSnackbar(effect.text)
+                SettingsEffect.NavigateBack -> { /* handled by back button */ }
+            }
+        }
+    }
 
     VaultTheme {
         Scaffold(
             containerColor = MaterialTheme.colorScheme.background,
+            snackbarHost = { SnackbarHost(snackbarHostState) },
             topBar = {
                 TopAppBar(
                     title = {
@@ -91,6 +123,12 @@ fun SettingsScreen(
                 TapThresholdSetting(
                     currentThreshold = state.tapThreshold,
                     onThresholdChanged = { viewModel.onIntent(SettingsIntent.SetTapThreshold(it)) }
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                BackupSection(
+                    lastBackupLabel = state.lastBackupLabel,
+                    onExport = { viewModel.onIntent(SettingsIntent.ExportClicked) },
+                    onImport = importLauncher
                 )
             }
         }
@@ -160,6 +198,58 @@ private fun TapThresholdSetting(
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun BackupSection(
+    lastBackupLabel: String?,
+    onExport: () -> Unit,
+    onImport: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
+            Text(
+                text = "Backup & Restore",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = if (lastBackupLabel != null)
+                    "Last backup: $lastBackupLabel"
+                else
+                    "Never backed up",
+                style = MaterialTheme.typography.bodySmall,
+                color = if (lastBackupLabel != null)
+                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                else
+                    MaterialTheme.colorScheme.error
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = onExport,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Export")
+                }
+                OutlinedButton(
+                    onClick = onImport,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("Import")
+                }
             }
         }
     }
