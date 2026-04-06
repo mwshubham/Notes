@@ -1,0 +1,18 @@
+package com.mwshubham.notes.data.local.entity
+
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+/**
+ * Room entity for the "notes" table.
+ * [createdAt] and [updatedAt] are stored as epoch milliseconds.
+ */
+@Entity(tableName = "notes")
+data class NoteEntity(
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0L,
+    val title: String,
+    val message: String,
+    val createdAt: Long,
+    val updatedAt: Long
+)
