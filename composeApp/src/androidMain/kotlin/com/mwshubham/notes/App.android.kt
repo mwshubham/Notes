@@ -1,6 +1,7 @@
 package com.mwshubham.notes
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
@@ -80,7 +81,11 @@ actual fun App() {
                 }
 
                 is NoteDetail -> NavEntry(key) {
+                    // A unique key per navigation session ensures koinViewModel always
+                    // creates a fresh instance rather than reusing a cached one.
+                    val vmKey = remember { "NoteDetail_${key.id}_${System.currentTimeMillis()}" }
                     val vm: NoteDetailViewModel = koinViewModel(
+                        key = vmKey,
                         parameters = { parametersOf(key.id) }
                     )
                     NoteDetailScreen(

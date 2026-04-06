@@ -17,6 +17,7 @@ import com.mwshubham.notes.presentation.splash.SplashScreen
 import com.mwshubham.notes.presentation.splash.SplashViewModel
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
+import kotlin.time.Clock
 
 /**
  * iOS actual — simple state-driven navigation using a SnapshotStateList as backstack.
@@ -50,7 +51,11 @@ actual fun App() {
         }
 
         is NoteDetail -> {
+            // A unique key per navigation session ensures koinViewModel always
+            // creates a fresh instance rather than reusing a cached one.
+            val vmKey = remember { "NoteDetail_${key.id}_${Clock.System.now()}" }
             val vm: NoteDetailViewModel = koinViewModel(
+                key = vmKey,
                 parameters = { parametersOf(key.id) }
             )
             NoteDetailScreen(

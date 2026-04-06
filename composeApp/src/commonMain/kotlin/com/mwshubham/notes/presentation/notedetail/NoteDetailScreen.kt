@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -33,11 +34,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -53,6 +59,8 @@ fun NoteDetailScreen(
 ) {
     val state by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    val titleFocusRequester = remember { FocusRequester() }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(Unit) {
         viewModel.effect.collectLatest { effect ->
@@ -61,6 +69,13 @@ fun NoteDetailScreen(
                 is NoteDetailEffect.ShowSnackbar ->
                     snackbarHostState.showSnackbar(effect.message)
             }
+        }
+    }
+
+    LaunchedEffect(state.id, state.isLoading) {
+        if (state.id == null && !state.isLoading) {
+            titleFocusRequester.requestFocus()
+            keyboardController?.show()
         }
     }
 
@@ -152,7 +167,12 @@ fun NoteDetailScreen(
                             fontFamily = FontFamily.Serif,
                             color = MaterialTheme.colorScheme.onBackground
                         ),
-                        singleLine = true
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Words,
+                            imeAction = ImeAction.Next
+                        ),
+                        modifier = Modifier.focusRequester(titleFocusRequester)
                     )
 
                     Spacer(Modifier.height(16.dp))
@@ -183,6 +203,10 @@ fun NoteDetailScreen(
                             lineHeight = 26.sp
                         ),
                         singleLine = false,
+                        keyboardOptions = KeyboardOptions(
+                            capitalization = KeyboardCapitalization.Sentences,
+                            imeAction = ImeAction.Default
+                        ),
                         modifier = Modifier.fillMaxWidth().height(300.dp)
                     )
                 }
@@ -202,6 +226,7 @@ private fun VaultTextField(
     hint: String,
     textStyle: TextStyle,
     singleLine: Boolean,
+    keyboardOptions: KeyboardOptions,
     modifier: Modifier = Modifier
 ) {
     BasicTextField(
@@ -209,6 +234,7 @@ private fun VaultTextField(
         onValueChange = onValueChange,
         textStyle = textStyle,
         singleLine = singleLine,
+        keyboardOptions = keyboardOptions,
         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary), // violet glow cursor
         modifier = modifier.fillMaxWidth(),
         decorationBox = { innerTextField ->
